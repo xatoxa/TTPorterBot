@@ -1,7 +1,7 @@
 import telebot
 import os
 import re
-from tiktok_downloader import tikmate
+from tiktok_downloader import services
 from config import TOKEN
 
 # передача токена
@@ -26,7 +26,7 @@ def load_video(message):
 		bot.send_message(message.chat.id, 'Ну-ка что там у тебя...')
 		try:
 			path = f"D:\python dump\{message.from_user.id}.mp4"
-			tikmate().get_media(url)[0].download(path)
+			downloader(url, path)
 			bot.send_message(message.chat.id, 'Ещё немного и видео загрузится!')
 			video = open(path, 'rb')
 			bot.send_video(message.chat.id, video)
@@ -36,6 +36,14 @@ def load_video(message):
 			bot.send_message(message.chat.id, 'Возникла какая-то ошибка :(\nПроверь ссылку и попробуй ещё раз.')
 	else:
 		bot.send_message(message.chat.id, "Я тебя не понимаю :-(")
+
+
+def downloader(url, path):
+	for service in services.values():
+		media = service(url)
+		if len(media) > 0:
+			media[0].download(path)
+			break
 
 
 bot.polling(none_stop=True)
